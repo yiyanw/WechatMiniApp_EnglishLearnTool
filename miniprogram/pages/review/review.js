@@ -92,7 +92,7 @@ Page({
     this._preloadAudioUrls(cards);
   },
 
-  // 页面加载时预先获取所有音频的临时 URL
+  // 页面加载时预先获取音频临时 URL 并预加载音频文件
   _preloadAudioUrls: function (cards) {
     var self = this;
     var cloudIds = [];
@@ -103,9 +103,33 @@ Page({
         }
       }
     });
+    if (cloudIds.length === 0) return;
+    wx.showLoading({ title: '加载中...', mask: true });
+    var remaining = cloudIds.length;
     cloudIds.forEach(function (fileID) {
-      self._resolveUrl(fileID, function () {});
+      self._resolveUrl(fileID, function (httpUrl) {
+        remaining--;
+        if (remaining <= 0) {
+          // URL 全部获取完毕，预加载音频文件
+          self._preloadAudioFile(httpUrl);
+        }
+      });
     });
+  },
+
+  // 设置 audio.src 让音频开始缓冲，canplay 后隐藏 loading
+  _preloadAudioFile: function (url) {
+    var audio = this._audio;
+    if (!audio) {
+      wx.hideLoading();
+      return;
+    }
+    var onReady = function () {
+      audio.offCanplay(onReady);
+      wx.hideLoading();
+    };
+    audio.onCanplay(onReady);
+    audio.src = url;
   },
 
   _getSentencesByIds: function (ids, allSentences) {
@@ -135,11 +159,13 @@ Page({
           callback(res.result.url);
         } else {
           console.error('getAudioUrl failed:', res.result);
+          wx.hideLoading();
           wx.showToast({ title: '音频地址获取失败', icon: 'none' });
         }
       },
       fail: function (err) {
         console.error('callFunction getAudioUrl failed:', err);
+        wx.hideLoading();
         wx.showToast({ title: '音频地址获取失败', icon: 'none' });
       }
     });

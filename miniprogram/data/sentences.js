@@ -4,29 +4,85 @@
 
 var SENTENCES = [
   {
-    id: 1,
-    en: "Hello. My name is Cathy.",
-    zh: "你好，我叫 Cathy。",
+    id: '1_1',
+    en: "",
+    zh: "",
     audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
     start: 28,
     end: 32
   },
   {
-    id: 2,
-    en: "I come from New York.",
-    zh: "我来自纽约。",
+    id: '1_2',
+    en: "",
+    zh: "",
     audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
-    start: 5.0,
-    end: 7.2
+    start: 32,
+    end: 40
   },
   {
-    id: 3,
-    en: "Nice to meet you.",
-    zh: "很高兴认识你。",
+    id: '1_3',
+    en: "",
+    zh: "",
     audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
-    start: 7.5,
-    end: 9.1
-  }
+    start: 40,
+    end: 57
+  },
+  {
+    id: '1_4',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 57,
+    end: 64
+  },
+  {
+    id: '1_5',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 64,
+    end: 71
+  },
+  {
+    id: '1_6',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 71,
+    end: 76
+  },
+  {
+    id: '1_7',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 76,
+    end: 86
+  },
+  {
+    id: '2_1',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 98,
+    end: 105
+  },
+  {
+    id: '2_2',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 105,
+    end: 113
+  },
+  {
+    id: '2_3',
+    en: "",
+    zh: "",
+    audioUrl: "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.mp3",
+    start: 113,
+    end: 120
+  },
 ];
 
 module.exports = {
