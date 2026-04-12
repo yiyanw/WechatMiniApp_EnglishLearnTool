@@ -1,0 +1,10 @@
+/* app.wxss */
+page {
+  background-color: #f0f4f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  box-sizing: border-box;
+}
+
+view, text {
+  box-sizing: border-box;
+}

@@ -1,0 +1,35 @@
+<!--pages/review/review.wxml-->
+<view class="page">
+  <view class="header">
+    <text class="header-title">今日复习</text>
+    <text class="header-subtitle">每天听三句，坚持有进步</text>
+  </view>
+
+  <view class="card-list">
+    <view
+      class="card {{playingId === item.id ? 'card--playing' : ''}}"
+      wx:for="{{cards}}"
+      wx:key="id"
+    >
+      <view class="card-content">
+        <view class="card-index">{{index + 1}}</view>
+        <view class="card-text">
+          <text class="card-en">{{item.en}}</text>
+        </view>
+      </view>
+      <view
+        class="card-play-btn {{playingId === item.id ? 'card-play-btn--playing' : ''}}"
+        data-id="{{item.id}}"
+        bindtap="onPlay"
+      >
+        <text class="play-icon">{{playingId === item.id ? '■' : '▶'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer" wx:if="{{playingId}}">
+    <view class="stop-btn" bindtap="onStop">
+      <text>停止播放</text>
+    </view>
+  </view>
+</view>

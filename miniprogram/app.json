@@ -1,0 +1,15 @@
+{
+  "pages": [
+    "pages/review/review"
+  ],
+  "window": {
+    "backgroundColor": "#F0F4F8",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4A90D9",
+    "navigationBarTitleText": "今日复习",
+    "navigationBarTextStyle": "white"
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}
