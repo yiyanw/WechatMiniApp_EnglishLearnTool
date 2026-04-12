@@ -1,4 +1,3 @@
-// pages/review/review.js
 var sentences = require('../../data/sentences');
 var storage = require('../../utils/storage');
 var random = require('../../utils/random');
@@ -13,7 +12,6 @@ Page({
 
   _audio: null,
   _currentSentence: null,
-  _checkTimer: null,
   _tempUrlMap: {},
 
   // ===== 生命周期 =====
@@ -54,7 +52,9 @@ Page({
       if (audio.currentTime >= self._currentSentence.end) {
         audio.pause();
         self._currentSentence = null;
-        self.setData({ playingId: null });
+        if (self.data.playingId !== null) {
+          self.setData({ playingId: null });
+        }
       }
     });
 
@@ -62,7 +62,6 @@ Page({
   },
 
   _destroyAudio: function () {
-    this._clearCheckTimer();
     if (this._audio) {
       this._audio.stop();
       this._audio.destroy();
@@ -159,14 +158,12 @@ Page({
           callback(res.result.url);
         } else {
           console.error('getAudioUrl failed:', res.result);
-          wx.hideLoading();
-          wx.showToast({ title: '音频地址获取失败', icon: 'none' });
+          self._onResolveFail();
         }
       },
       fail: function (err) {
         console.error('callFunction getAudioUrl failed:', err);
-        wx.hideLoading();
-        wx.showToast({ title: '音频地址获取失败', icon: 'none' });
+        self._onResolveFail();
       }
     });
   },
@@ -242,19 +239,18 @@ Page({
     }
   },
 
+  _onResolveFail: function () {
+    wx.hideLoading();
+    wx.showToast({ title: '音频地址获取失败', icon: 'none' });
+  },
+
   _stopPlayback: function () {
-    this._clearCheckTimer();
     if (this._audio) {
       this._audio.pause();
     }
     this._currentSentence = null;
-    this.setData({ playingId: null });
-  },
-
-  _clearCheckTimer: function () {
-    if (this._checkTimer) {
-      clearInterval(this._checkTimer);
-      this._checkTimer = null;
+    if (this.data.playingId !== null) {
+      this.setData({ playingId: null });
     }
   }
 });
