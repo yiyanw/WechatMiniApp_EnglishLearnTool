@@ -1,4 +1,4 @@
-var sentences = require('../../data/sentences');
+var sentenceData = require('../../data/sentences');
 var audioUtil = require('../../utils/audio');
 var storage = require('../../utils/storage');
 
@@ -12,7 +12,7 @@ Page({
   _mixer: null,
 
   onLoad: function () {
-    this._mixer = audioUtil.createAudioMixin(this);
+    this._mixer = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
     this._mixer.initAudio();
     this._loadSentences();
   },
@@ -30,7 +30,7 @@ Page({
   },
 
   _loadSentences: function () {
-    var all = sentences.SENTENCES;
+    var all = sentenceData.SENTENCES;
     var groupMap = {};
     var groupOrder = [];
 
@@ -45,7 +45,7 @@ Page({
 
     var groups = groupOrder.map(function (ch) { return groupMap[ch]; });
     this.setData({ groups: groups });
-    this._mixer.preloadAudioUrls(all);
+    this._mixer.preloadAudio();
   },
 
   _refreshLearnedSet: function () {
@@ -58,7 +58,7 @@ Page({
   },
 
   onPlay: function (e) {
-    this._mixer.handlePlay(e.currentTarget.dataset.id, sentences.SENTENCES);
+    this._mixer.handlePlay(e.currentTarget.dataset.id, sentenceData.SENTENCES);
   },
 
   onStop: function () {

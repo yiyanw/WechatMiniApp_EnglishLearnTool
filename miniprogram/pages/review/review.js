@@ -1,4 +1,4 @@
-var sentences = require('../../data/sentences');
+var sentenceData = require('../../data/sentences');
 var storageUtil = require('../../utils/storage');
 var random = require('../../utils/random');
 var audioUtil = require('../../utils/audio');
@@ -14,7 +14,7 @@ Page({
   _mixer: null,
 
   onLoad: function () {
-    this._mixer = audioUtil.createAudioMixin(this);
+    this._mixer = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
     this._mixer.initAudio();
     storageUtil.cleanOldCache();
   },
@@ -32,7 +32,7 @@ Page({
   },
 
   _loadTodayCards: function () {
-    var allSentences = sentences.SENTENCES;
+    var allSentences = sentenceData.SENTENCES;
     var learnedSet = storageUtil.getLearnedSet();
     var pool = allSentences.filter(function (s) { return learnedSet[s.id]; });
 
@@ -53,7 +53,7 @@ Page({
     }
 
     this.setData({ cards: cards });
-    this._mixer.preloadAudioUrls(cards);
+    this._mixer.preloadAudio();
   },
 
   _getSentencesByIds: function (ids, allSentences) {

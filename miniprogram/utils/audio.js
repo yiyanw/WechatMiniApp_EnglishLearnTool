@@ -1,6 +1,6 @@
 var _tempUrlMap = {};
 
-function createAudioMixin(page) {
+function createAudioMixin(page, audioUrl) {
   return {
     _audio: null,
     _currentSentence: null,
@@ -40,26 +40,12 @@ function createAudioMixin(page) {
       page.setData({ playingId: null });
     },
 
-    preloadAudioUrls: function (items) {
+    preloadAudio: function () {
       var self = this;
-      var cloudIds = [];
-      items.forEach(function (item) {
-        if (item.audioUrl && item.audioUrl.indexOf('cloud://') === 0 && !_tempUrlMap[item.audioUrl]) {
-          if (cloudIds.indexOf(item.audioUrl) === -1) {
-            cloudIds.push(item.audioUrl);
-          }
-        }
-      });
-      if (cloudIds.length === 0) return;
+      if (!audioUrl || audioUrl.indexOf('cloud://') !== 0 || _tempUrlMap[audioUrl]) return;
       wx.showLoading({ title: '加载中...', mask: true });
-      var remaining = cloudIds.length;
-      cloudIds.forEach(function (fileID) {
-        self.resolveUrl(fileID, function (httpUrl) {
-          remaining--;
-          if (remaining <= 0) {
-            self._preloadAudioFile(httpUrl);
-          }
-        });
+      self.resolveUrl(audioUrl, function (httpUrl) {
+        self._preloadAudioFile(httpUrl);
       });
     },
 
@@ -127,7 +113,6 @@ function createAudioMixin(page) {
       this._currentSentence = sentence;
       page.setData({ playingId: sentence.id });
 
-      var audioUrl = sentence.audioUrl;
       if (audioUrl.indexOf('cloud://') === 0) {
         self.resolveUrl(audioUrl, function (httpUrl) {
           if (self._currentSentence && self._currentSentence.id === sentence.id) {
