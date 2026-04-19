@@ -55,7 +55,7 @@ assets/
 
 自定义 skill 放在 `.claude/skills/<skill-name>/SKILL.md`，通过 `/skill-name` 调用。
 - `/gen-sentences <whisper.json> <output.js>` — 从 whisper 转录结果生成 sentences.js
-- `/commit` — 代码审查 + 提交
+- `/commit` — 代码审查 + 运行测试 + 提交
 
 ## Key Patterns
 
