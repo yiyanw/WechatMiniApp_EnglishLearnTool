@@ -82,13 +82,21 @@
   color: #333;
   line-height: 1.5;
   word-break: break-word;
-  margin-bottom: 8rpx;
 }
 
-.card-time {
+.card-zh {
   display: block;
-  font-size: 24rpx;
-  color: #aaa;
+  font-size: 30rpx;
+  color: #555;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.card-blank {
+  display: block;
+  font-size: 28rpx;
+  color: #bbb;
+  font-style: italic;
 }
 
 /* 操作区（开关 + 播放） */

@@ -8,7 +8,8 @@ var DAILY_COUNT = 3;
 Page({
   data: {
     cards: [],
-    playingId: null
+    playingId: null,
+    displayMode: {}
   },
 
   _mixer: null,
@@ -64,6 +65,13 @@ Page({
       if (map[id]) result.push(map[id]);
     });
     return result;
+  },
+
+  onToggleText: function (e) {
+    var id = e.currentTarget.dataset.id;
+    var key = 'displayMode.' + id;
+    var current = this.data.displayMode[id] || 0;
+    this.setData({ [key]: (current + 1) % 3 });
   },
 
   onPlay: function (e) {

@@ -6,7 +6,8 @@ Page({
   data: {
     groups: [],
     playingId: null,
-    learnedSet: {}
+    learnedSet: {},
+    displayMode: {}
   },
 
   _mixer: null,
@@ -50,6 +51,14 @@ Page({
 
   _refreshLearnedSet: function () {
     this.setData({ learnedSet: storage.getLearnedSet() });
+  },
+
+  onToggleText: function (e) {
+    var id = e.currentTarget.dataset.id;
+    var key = 'displayMode.' + id;
+    var current = this.data.displayMode[id];
+    if (current === undefined) current = 1;
+    this.setData({ [key]: (current + 1) % 3 });
   },
 
   onToggleLearned: function (e) {

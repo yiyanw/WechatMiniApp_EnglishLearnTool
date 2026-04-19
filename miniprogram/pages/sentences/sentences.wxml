@@ -10,11 +10,12 @@
       wx:for="{{group.items}}"
       wx:key="id"
     >
-      <view class="card-content">
+      <view class="card-content" data-id="{{item.id}}" bindtap="onToggleText">
         <view class="card-index">{{item.id.split('_')[1]}}</view>
         <view class="card-text">
-          <text class="card-en" wx:if="{{item.en}}">{{item.en}}</text>
-          <text class="card-time">{{item.start}}s - {{item.end}}s</text>
+          <text class="card-blank" wx:if="{{displayMode[item.id] === 0}}">点击显示</text>
+          <text class="card-zh" wx:elif="{{displayMode[item.id] === 2}}">{{item.zh}}</text>
+          <text class="card-en" wx:else>{{item.en}}</text>
         </view>
       </view>
       <view class="card-actions">

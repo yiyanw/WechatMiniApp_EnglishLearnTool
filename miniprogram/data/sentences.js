@@ -1,6 +1,3 @@
-// data/sentences.js
-// 句子语料 — audioUrl 填云存储 fileID，上传后替换
-// start/end 单位：秒
 var AUDIO_URL = "cloud://cloudbase-3grupbw990c1f2da.636c-cloudbase-3grupbw990c1f2da-1421372818/new-york-cafe.m4a";
 
 var SENTENCES = [
