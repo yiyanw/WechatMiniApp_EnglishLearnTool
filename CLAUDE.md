@@ -51,6 +51,12 @@ assets/
 - 音频逻辑通过 `createAudioMixin(page)` 混入，多页面复用同一套播放逻辑
 - 私有状态用 `_` 前缀（`_audio`, `_currentSentence`, `_mixer`），不放入 `data`
 
+## Skills
+
+自定义 skill 放在 `.claude/skills/<skill-name>/SKILL.md`，通过 `/skill-name` 调用。
+- `/gen-sentences <whisper.json> <output.js>` — 从 whisper 转录结果生成 sentences.js
+- `/commit` — 代码审查 + 提交
+
 ## Key Patterns
 
 - 已学标记：`toggleLearned(id)` 写入 `learned_ids`，`getLearnedSet()` 返回 {id: true} 查找表
