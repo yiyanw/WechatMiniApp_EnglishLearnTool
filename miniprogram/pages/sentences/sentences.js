@@ -49,18 +49,12 @@ Page({
   },
 
   _refreshLearnedSet: function () {
-    var ids = storage.getLearnedIds();
-    var set = {};
-    ids.forEach(function (id) { set[id] = true; });
-    this.setData({ learnedSet: set });
+    this.setData({ learnedSet: storage.getLearnedSet() });
   },
 
   onToggleLearned: function (e) {
-    var id = e.currentTarget.dataset.id;
-    var ids = storage.toggleLearned(id);
-    var set = {};
-    ids.forEach(function (id) { set[id] = true; });
-    this.setData({ learnedSet: set });
+    storage.toggleLearned(e.currentTarget.dataset.id);
+    this.setData({ learnedSet: storage.getLearnedSet() });
   },
 
   onPlay: function (e) {

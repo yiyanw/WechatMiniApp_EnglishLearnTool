@@ -56,6 +56,13 @@ function getLearnedIds() {
   }
 }
 
+function getLearnedSet() {
+  var ids = getLearnedIds();
+  var set = {};
+  ids.forEach(function (id) { set[id] = true; });
+  return set;
+}
+
 function toggleLearned(id) {
   var ids = getLearnedIds();
   var idx = ids.indexOf(id);
@@ -69,7 +76,6 @@ function toggleLearned(id) {
   } catch (e) {
     console.error('Failed to save learned ids:', e);
   }
-  return ids;
 }
 
 module.exports = {
@@ -77,5 +83,6 @@ module.exports = {
   saveTodayReview: saveTodayReview,
   cleanOldCache: cleanOldCache,
   getLearnedIds: getLearnedIds,
+  getLearnedSet: getLearnedSet,
   toggleLearned: toggleLearned
 };

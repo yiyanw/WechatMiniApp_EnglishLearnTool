@@ -33,16 +33,13 @@ Page({
 
   _loadTodayCards: function () {
     var allSentences = sentences.SENTENCES;
-    var learnedIds = storageUtil.getLearnedIds();
+    var learnedSet = storageUtil.getLearnedSet();
+    var pool = allSentences.filter(function (s) { return learnedSet[s.id]; });
 
-    if (learnedIds.length === 0) {
+    if (pool.length === 0) {
       this.setData({ cards: [] });
       return;
     }
-
-    var learnedSet = {};
-    learnedIds.forEach(function (id) { learnedSet[id] = true; });
-    var pool = allSentences.filter(function (s) { return learnedSet[s.id]; });
 
     var cachedIds = storageUtil.getTodayReview();
     var cards;

@@ -1,6 +1,3 @@
-// utils/audio.js
-// 共享音频播放逻辑，供多个页面复用
-
 var _tempUrlMap = {};
 
 function createAudioMixin(page) {
