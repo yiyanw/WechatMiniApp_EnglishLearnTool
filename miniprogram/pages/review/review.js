@@ -1,6 +1,7 @@
 var sentences = require('../../data/sentences');
-var storage = require('../../utils/storage');
+var storageUtil = require('../../utils/storage');
 var random = require('../../utils/random');
+var audioUtil = require('../../utils/audio');
 
 var DAILY_COUNT = 3;
 
@@ -10,125 +11,52 @@ Page({
     playingId: null
   },
 
-  _audio: null,
-  _currentSentence: null,
-  _tempUrlMap: {},
-
-  // ===== 生命周期 =====
+  _mixer: null,
 
   onLoad: function () {
-    this._initAudio();
+    this._mixer = audioUtil.createAudioMixin(this);
+    this._mixer.initAudio();
+    storageUtil.cleanOldCache();
+  },
+
+  onShow: function () {
     this._loadTodayCards();
-    storage.cleanOldCache();
   },
 
   onUnload: function () {
-    this._destroyAudio();
+    this._mixer.destroyAudio();
   },
 
   onHide: function () {
-    this._stopPlayback();
+    this._mixer.stopPlayback();
   },
-
-  // ===== 音频初始化 =====
-
-  _initAudio: function () {
-    var self = this;
-    var audio = wx.createInnerAudioContext();
-    audio.obeyMuteSwitch = false;
-
-    audio.onError(function (err) {
-      console.error('Audio error:', err);
-      wx.showToast({ title: '播放失败', icon: 'none', duration: 2000 });
-      self._stopPlayback();
-    });
-
-    audio.onEnded(function () {
-      self._stopPlayback();
-    });
-
-    audio.onTimeUpdate(function () {
-      if (!self._currentSentence) return;
-      if (audio.currentTime >= self._currentSentence.end) {
-        audio.pause();
-        self._currentSentence = null;
-        if (self.data.playingId !== null) {
-          self.setData({ playingId: null });
-        }
-      }
-    });
-
-    self._audio = audio;
-  },
-
-  _destroyAudio: function () {
-    if (this._audio) {
-      this._audio.stop();
-      this._audio.destroy();
-      this._audio = null;
-    }
-    this._currentSentence = null;
-    this.setData({ playingId: null });
-  },
-
-  // ===== 加载今日卡片 =====
 
   _loadTodayCards: function () {
     var allSentences = sentences.SENTENCES;
-    var cachedIds = storage.getTodayReview();
+    var learnedIds = storageUtil.getLearnedIds();
 
+    if (learnedIds.length === 0) {
+      this.setData({ cards: [] });
+      return;
+    }
+
+    var learnedSet = {};
+    learnedIds.forEach(function (id) { learnedSet[id] = true; });
+    var pool = allSentences.filter(function (s) { return learnedSet[s.id]; });
+
+    var cachedIds = storageUtil.getTodayReview();
     var cards;
     if (cachedIds) {
-      cards = this._getSentencesByIds(cachedIds, allSentences);
+      cards = this._getSentencesByIds(cachedIds, pool);
     }
     if (!cards || cards.length === 0) {
-      cards = random.pickRandom(allSentences, DAILY_COUNT);
+      cards = random.pickRandom(pool, DAILY_COUNT);
       var pickedIds = cards.map(function (s) { return s.id; });
-      storage.saveTodayReview(pickedIds);
+      storageUtil.saveTodayReview(pickedIds);
     }
 
     this.setData({ cards: cards });
-    this._preloadAudioUrls(cards);
-  },
-
-  // 页面加载时预先获取音频临时 URL 并预加载音频文件
-  _preloadAudioUrls: function (cards) {
-    var self = this;
-    var cloudIds = [];
-    cards.forEach(function (card) {
-      if (card.audioUrl && card.audioUrl.indexOf('cloud://') === 0 && !self._tempUrlMap[card.audioUrl]) {
-        if (cloudIds.indexOf(card.audioUrl) === -1) {
-          cloudIds.push(card.audioUrl);
-        }
-      }
-    });
-    if (cloudIds.length === 0) return;
-    wx.showLoading({ title: '加载中...', mask: true });
-    var remaining = cloudIds.length;
-    cloudIds.forEach(function (fileID) {
-      self._resolveUrl(fileID, function (httpUrl) {
-        remaining--;
-        if (remaining <= 0) {
-          // URL 全部获取完毕，预加载音频文件
-          self._preloadAudioFile(httpUrl);
-        }
-      });
-    });
-  },
-
-  // 设置 audio.src 让音频开始缓冲，canplay 后隐藏 loading
-  _preloadAudioFile: function (url) {
-    var audio = this._audio;
-    if (!audio) {
-      wx.hideLoading();
-      return;
-    }
-    var onReady = function () {
-      audio.offCanplay(onReady);
-      wx.hideLoading();
-    };
-    audio.onCanplay(onReady);
-    audio.src = url;
+    this._mixer.preloadAudioUrls(cards);
   },
 
   _getSentencesByIds: function (ids, allSentences) {
@@ -141,116 +69,11 @@ Page({
     return result;
   },
 
-  // ===== cloud:// URL 转换 =====
-
-  _resolveUrl: function (cloudFileId, callback) {
-    var self = this;
-    if (self._tempUrlMap[cloudFileId]) {
-      callback(self._tempUrlMap[cloudFileId]);
-      return;
-    }
-    wx.cloud.callFunction({
-      name: 'getAudioUrl',
-      data: { fileID: cloudFileId },
-      success: function (res) {
-        if (res.result && res.result.url) {
-          self._tempUrlMap[cloudFileId] = res.result.url;
-          callback(res.result.url);
-        } else {
-          console.error('getAudioUrl failed:', res.result);
-          self._onResolveFail();
-        }
-      },
-      fail: function (err) {
-        console.error('callFunction getAudioUrl failed:', err);
-        self._onResolveFail();
-      }
-    });
-  },
-
-  // ===== 播放控制 =====
-
   onPlay: function (e) {
-    var id = e.currentTarget.dataset.id;
-
-    if (this.data.playingId === id) {
-      this._stopPlayback();
-      return;
-    }
-
-    var sentence = null;
-    for (var i = 0; i < this.data.cards.length; i++) {
-      if (this.data.cards[i].id === id) {
-        sentence = this.data.cards[i];
-        break;
-      }
-    }
-    if (!sentence) return;
-
-    if (sentence.start >= sentence.end) {
-      console.error('Invalid timestamps for sentence', sentence.id);
-      wx.showToast({ title: '数据异常', icon: 'none' });
-      return;
-    }
-
-    this._playSentence(sentence);
+    this._mixer.handlePlay(e.currentTarget.dataset.id, this.data.cards);
   },
 
   onStop: function () {
-    this._stopPlayback();
-  },
-
-  _playSentence: function (sentence) {
-    var audio = this._audio;
-    if (!audio) return;
-    var self = this;
-
-    // 停止当前播放
-    audio.pause();
-    this._currentSentence = sentence;
-    this.setData({ playingId: sentence.id });
-
-    // cloud:// 需要先转成 http 临时链接
-    var audioUrl = sentence.audioUrl;
-    if (audioUrl.indexOf('cloud://') === 0) {
-      self._resolveUrl(audioUrl, function (httpUrl) {
-        if (self._currentSentence && self._currentSentence.id === sentence.id) {
-          self._doPlay(httpUrl, sentence.start);
-        }
-      });
-    } else {
-      self._doPlay(audioUrl, sentence.start);
-    }
-  },
-
-  _doPlay: function (url, startTime) {
-    var audio = this._audio;
-    if (!audio) return;
-
-    if (audio.src === url) {
-      // 同一音频文件，直接 seek 到目标位置再播放
-      audio.seek(startTime);
-      audio.play();
-    } else {
-      // 新音频文件，设置 src + startTime
-      audio.src = url;
-      audio.startTime = startTime;
-      audio.play();
-    }
-  },
-
-  _onResolveFail: function () {
-    wx.hideLoading();
-    wx.showToast({ title: '音频地址获取失败', icon: 'none' });
-  },
-
-  _stopPlayback: function () {
-    if (this._audio) {
-      this._audio.pause();
-    }
-    this._currentSentence = null;
-    if (this.data.playingId !== null) {
-      this.setData({ playingId: null });
-    }
+    this._mixer.stopPlayback();
   }
 });

@@ -1,13 +1,30 @@
 {
   "pages": [
-    "pages/review/review"
+    "pages/review/review",
+    "pages/sentences/sentences"
   ],
   "window": {
     "backgroundColor": "#F0F4F8",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#4A90D9",
-    "navigationBarTitleText": "今日复习",
+    "navigationBarTitleText": "英语复习",
     "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999",
+    "selectedColor": "#4A90D9",
+    "backgroundColor": "#fff",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/review/review",
+        "text": "今日复习"
+      },
+      {
+        "pagePath": "pages/sentences/sentences",
+        "text": "全部句子"
+      }
+    ]
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

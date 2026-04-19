@@ -1,0 +1,44 @@
+<view class="page">
+  <view class="group" wx:for="{{groups}}" wx:key="chapter" wx:for-item="group">
+    <view class="group-header">
+      <text class="group-title">Chapter {{group.chapter}}</text>
+      <text class="group-count">{{group.items.length}} 句</text>
+    </view>
+
+    <view
+      class="card {{playingId === item.id ? 'card--playing' : ''}}"
+      wx:for="{{group.items}}"
+      wx:key="id"
+    >
+      <view class="card-content">
+        <view class="card-index">{{item.id.split('_')[1]}}</view>
+        <view class="card-text">
+          <text class="card-en" wx:if="{{item.en}}">{{item.en}}</text>
+          <text class="card-time">{{item.start}}s - {{item.end}}s</text>
+        </view>
+      </view>
+      <view class="card-actions">
+        <switch
+          class="learned-switch"
+          checked="{{learnedSet[item.id]}}"
+          data-id="{{item.id}}"
+          bindchange="onToggleLearned"
+          color="#4A90D9"
+        />
+        <view
+          class="card-play-btn {{playingId === item.id ? 'card-play-btn--playing' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onPlay"
+        >
+          <text class="play-icon">{{playingId === item.id ? '■' : '▶'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer" wx:if="{{playingId}}">
+    <view class="stop-btn" bindtap="onStop">
+      <text>停止播放</text>
+    </view>
+  </view>
+</view>

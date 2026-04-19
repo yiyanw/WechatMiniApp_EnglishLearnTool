@@ -5,7 +5,12 @@
     <text class="header-subtitle">每天听三句，坚持有进步</text>
   </view>
 
-  <view class="card-list">
+  <view class="empty-state" wx:if="{{cards.length === 0}}">
+    <text class="empty-text">还没有已学习的句子</text>
+    <text class="empty-hint">去「全部句子」页面开启复习开关吧</text>
+  </view>
+
+  <view class="card-list" wx:else>
     <view
       class="card {{playingId === item.id ? 'card--playing' : ''}}"
       wx:for="{{cards}}"

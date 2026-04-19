@@ -44,8 +44,38 @@ function cleanOldCache() {
   }
 }
 
+var LEARNED_KEY = 'learned_ids';
+
+function getLearnedIds() {
+  try {
+    var ids = wx.getStorageSync(LEARNED_KEY);
+    if (Array.isArray(ids)) return ids;
+    return [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function toggleLearned(id) {
+  var ids = getLearnedIds();
+  var idx = ids.indexOf(id);
+  if (idx >= 0) {
+    ids.splice(idx, 1);
+  } else {
+    ids.push(id);
+  }
+  try {
+    wx.setStorageSync(LEARNED_KEY, ids);
+  } catch (e) {
+    console.error('Failed to save learned ids:', e);
+  }
+  return ids;
+}
+
 module.exports = {
   getTodayReview: getTodayReview,
   saveTodayReview: saveTodayReview,
-  cleanOldCache: cleanOldCache
+  cleanOldCache: cleanOldCache,
+  getLearnedIds: getLearnedIds,
+  toggleLearned: toggleLearned
 };
