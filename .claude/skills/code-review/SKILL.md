@@ -1,19 +1,28 @@
 ---
 name: code-review
-description: Review changed code for format, best practices, and performance issues, then fix any problems found.
+description: Review changed code for reuse, format, best practices, and performance, then fix any problems found.
 ---
 
-Review all changed files for code format, best practices, and performance. Fix any issues found.
+Review all changed files for reuse, code format, best practices, and performance. Fix any issues found.
 
 ## Phase 1: Identify Changes
 
-Run `git diff` (or `git diff HEAD` if there are staged changes) to see what changed. If there are no git changes, review the most recently modified files that the user mentioned or that you edited earlier in this conversation.
+Run `git diff` (or `git diff HEAD` if there are staged changes) to see what changed. If there are no git changes, run `git diff HEAD~1` to review the last commit.
 
-## Phase 2: Launch Three Review Agents in Parallel
+## Phase 2: Launch Four Review Agents in Parallel
 
-Use the Agent tool to launch all three agents concurrently in a single message. Pass each agent the full diff and relevant file paths so it has the complete context.
+Use the Agent tool to launch all four agents concurrently in a single message. Pass each agent the full diff and relevant file paths so it has the complete context.
 
-### Agent 1: Code Format Review
+### Agent 1: Code Reuse Review
+
+Check all changed code for reuse opportunities:
+
+1. **Search for existing utilities and helpers** that could replace newly written code. Look in `miniprogram/utils/` and adjacent files.
+2. **Flag any new function that duplicates existing functionality.** Suggest the existing function to use instead.
+3. **Flag any inline logic that could use an existing utility** — hand-rolled string manipulation, manual path handling, ad-hoc type guards.
+4. **Copy-paste with slight variation**: near-duplicate code blocks across pages that should be unified in a shared module (e.g., audio mixin pattern).
+
+### Agent 2: Code Format Review
 
 Check all changed code against the project's conventions (see CLAUDE.md):
 
@@ -54,6 +63,6 @@ Check all changed code for performance issues:
 
 ## Phase 3: Fix Issues
 
-Wait for all three agents to complete. Aggregate their findings and fix each issue directly. If a finding is a false positive or not worth addressing, note it and move on.
+Wait for all four agents to complete. Aggregate their findings and fix each issue directly. If a finding is a false positive or not worth addressing, note it and move on.
 
 When done, briefly summarize what was fixed (or confirm the code was already clean).
