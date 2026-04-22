@@ -11,11 +11,11 @@ Page({
     playbackRate: 1.0
   },
 
-  _mixer: null,
+  _player: null,
 
   onLoad: function () {
-    this._mixer = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
-    this._mixer.initAudio();
+    this._player = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
+    this._player.initAudio();
     this._loadSentences();
   },
 
@@ -24,11 +24,11 @@ Page({
   },
 
   onUnload: function () {
-    this._mixer.destroyAudio();
+    this._player.destroyAudio();
   },
 
   onHide: function () {
-    this._mixer.stopPlayback();
+    this._player.stopPlayback();
   },
 
   _loadSentences: function () {
@@ -36,18 +36,18 @@ Page({
     var groupMap = {};
     var groupOrder = [];
 
-    all.forEach(function (s) {
-      var chapter = s.id.split('_')[0];
+    all.forEach(function (sentence) {
+      var chapter = sentence.id.split('_')[0];
       if (!groupMap[chapter]) {
         groupMap[chapter] = { chapter: chapter, items: [] };
         groupOrder.push(chapter);
       }
-      groupMap[chapter].items.push(s);
+      groupMap[chapter].items.push(sentence);
     });
 
     var groups = groupOrder.map(function (ch) { return groupMap[ch]; });
     this.setData({ groups: groups });
-    this._mixer.preloadAudio();
+    this._player.preloadAudio();
   },
 
   _refreshLearnedSet: function () {
@@ -68,14 +68,14 @@ Page({
   },
 
   onSpeedTap: function () {
-    this._mixer.cycleSpeed();
+    this._player.cycleSpeed();
   },
 
   onPlay: function (e) {
-    this._mixer.handlePlay(e.currentTarget.dataset.id, sentenceData.SENTENCES);
+    this._player.handlePlay(e.currentTarget.dataset.id, sentenceData.SENTENCES);
   },
 
   onStop: function () {
-    this._mixer.stopPlayback();
+    this._player.stopPlayback();
   }
 });

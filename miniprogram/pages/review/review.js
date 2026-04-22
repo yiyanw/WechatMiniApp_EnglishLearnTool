@@ -13,11 +13,11 @@ Page({
     playbackRate: 1.0
   },
 
-  _mixer: null,
+  _player: null,
 
   onLoad: function () {
-    this._mixer = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
-    this._mixer.initAudio();
+    this._player = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
+    this._player.initAudio();
     storageUtil.cleanOldCache();
   },
 
@@ -26,17 +26,17 @@ Page({
   },
 
   onUnload: function () {
-    this._mixer.destroyAudio();
+    this._player.destroyAudio();
   },
 
   onHide: function () {
-    this._mixer.stopPlayback();
+    this._player.stopPlayback();
   },
 
   _loadTodayCards: function () {
     var allSentences = sentenceData.SENTENCES;
     var learnedSet = storageUtil.getLearnedSet();
-    var pool = allSentences.filter(function (s) { return learnedSet[s.id]; });
+    var pool = allSentences.filter(function (sentence) { return learnedSet[sentence.id]; });
 
     if (pool.length === 0) {
       this.setData({ cards: [] });
@@ -50,17 +50,17 @@ Page({
     }
     if (!cards || cards.length === 0) {
       cards = random.pickRandom(pool, DAILY_COUNT);
-      var pickedIds = cards.map(function (s) { return s.id; });
+      var pickedIds = cards.map(function (sentence) { return sentence.id; });
       storageUtil.saveTodayReview(pickedIds);
     }
 
     this.setData({ cards: cards });
-    this._mixer.preloadAudio();
+    this._player.preloadAudio();
   },
 
   _getSentencesByIds: function (ids, allSentences) {
     var map = {};
-    allSentences.forEach(function (s) { map[s.id] = s; });
+    allSentences.forEach(function (sentence) { map[sentence.id] = sentence; });
     var result = [];
     ids.forEach(function (id) {
       if (map[id]) result.push(map[id]);
@@ -76,14 +76,14 @@ Page({
   },
 
   onSpeedTap: function () {
-    this._mixer.cycleSpeed();
+    this._player.cycleSpeed();
   },
 
   onPlay: function (e) {
-    this._mixer.handlePlay(e.currentTarget.dataset.id, this.data.cards);
+    this._player.handlePlay(e.currentTarget.dataset.id, this.data.cards);
   },
 
   onStop: function () {
-    this._mixer.stopPlayback();
+    this._player.stopPlayback();
   }
 });

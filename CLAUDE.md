@@ -49,7 +49,7 @@ assets/
 - CommonJS: `module.exports` / `require()`
 - 每页 4 文件：.js / .wxml / .wxss / .json
 - 音频逻辑通过 `createAudioMixin(page)` 混入，多页面复用同一套播放逻辑
-- 私有状态用 `_` 前缀（`_audio`, `_currentSentence`, `_mixer`），不放入 `data`
+- 私有状态用 `_` 前缀（`_audio`, `_currentSentence`, `_player`），不放入 `data`
 
 ## Skills
 
@@ -57,12 +57,13 @@ assets/
 - `/gen-sentences <whisper.json> <output.js>` — 从 whisper 转录结果生成 sentences.js
 - `/commit` — 代码审查 + 运行测试 + 提交
 - `/code-review` — 检查代码格式、最佳实践、性能问题并修复
+- `/naming-review` — 检查变量名、方法名是否存在歧义或不清晰并修复
 
 ## Key Patterns
 
 - 已学标记：`toggleLearned(id)` 写入 `learned_ids`，`getLearnedSet()` 返回 {id: true} 查找表
 - 每日抽取：从已学池 `filter(learnedSet)` → `pickRandom(pool, 3)` → 缓存到 `review_cards_YYYY-MM-DD`
-- 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_mixer` 引用
+- 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_player` 引用
 - 音频播放：`pause → resolveUrl → set src + startTime → play()`；同 src 时直接 `seek + play`
 - 倍速播放：`SPEEDS = [1.0, 0.8, 0.6]`，`cycleSpeed()` 循环切换，`setPlaybackRate()` 同步 `_playbackRate` + `page.data.playbackRate`
 - 播放结束检测：`onTimeUpdate` 检查 `currentTime >= end`

@@ -59,7 +59,7 @@ function getLearnedIds() {
 function getLearnedSet() {
   var ids = getLearnedIds();
   var set = {};
-  ids.forEach(function (id) { set[id] = true; });
+  ids.forEach(function (sentenceId) { set[sentenceId] = true; });
   return set;
 }
 

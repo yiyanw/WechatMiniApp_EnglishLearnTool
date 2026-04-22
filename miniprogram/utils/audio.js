@@ -104,14 +104,14 @@ function createAudioMixin(page, audioUrl) {
       this.setPlaybackRate(next);
     },
 
-    handlePlay: function (id, items) {
+    handlePlay: function (id, sentences) {
       if (page.data.playingId === id) {
         this.stopPlayback();
         return;
       }
       var sentence = null;
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].id === id) { sentence = items[i]; break; }
+      for (var i = 0; i < sentences.length; i++) {
+        if (sentences[i].id === id) { sentence = sentences[i]; break; }
       }
       if (!sentence) return;
       if (sentence.start >= sentence.end) {
