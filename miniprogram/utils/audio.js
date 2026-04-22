@@ -13,8 +13,9 @@ function createAudioMixin(page, audioUrl) {
       audio.obeyMuteSwitch = false;
 
       audio.onError(function (err) {
+        var code = (err && err.errCode) || (err && err.errMsg) || 'unknown';
         console.error('Audio error:', err);
-        wx.showToast({ title: '播放失败', icon: 'none', duration: 2000 });
+        wx.showToast({ title: '音频播放出错(' + code + ')', icon: 'none', duration: 2000 });
         self.stopPlayback();
       });
 
@@ -69,6 +70,11 @@ function createAudioMixin(page, audioUrl) {
         callback(_tempUrlMap[cloudFileId]);
         return;
       }
+      self._callGetAudioUrl(cloudFileId, callback, 1);
+    },
+
+    _callGetAudioUrl: function (cloudFileId, callback, retries) {
+      var self = this;
       wx.cloud.callFunction({
         name: 'getAudioUrl',
         data: { fileID: cloudFileId },
@@ -77,15 +83,22 @@ function createAudioMixin(page, audioUrl) {
             _tempUrlMap[cloudFileId] = res.result.url;
             callback(res.result.url);
           } else {
+            var errMsg = (res.result && res.result.errMsg) || '返回为空';
             console.error('getAudioUrl failed:', res.result);
             wx.hideLoading();
-            wx.showToast({ title: '音频地址获取失败', icon: 'none' });
+            wx.showToast({ title: '获取音频地址失败: ' + errMsg, icon: 'none' });
           }
         },
         fail: function (err) {
+          if (retries > 0) {
+            console.warn('getAudioUrl timeout, retrying...', err);
+            self._callGetAudioUrl(cloudFileId, callback, retries - 1);
+            return;
+          }
+          var errMsg = (err && err.errMsg) || '网络异常';
           console.error('callFunction getAudioUrl failed:', err);
           wx.hideLoading();
-          wx.showToast({ title: '音频地址获取失败', icon: 'none' });
+          wx.showToast({ title: '云函数调用失败: ' + errMsg, icon: 'none' });
         }
       });
     },
