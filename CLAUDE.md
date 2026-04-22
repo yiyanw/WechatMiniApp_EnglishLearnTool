@@ -56,6 +56,7 @@ assets/
 自定义 skill 放在 `.claude/skills/<skill-name>/SKILL.md`，通过 `/skill-name` 调用。
 - `/gen-sentences <whisper.json> <output.js>` — 从 whisper 转录结果生成 sentences.js
 - `/commit` — 代码审查 + 运行测试 + 提交
+- `/code-review` — 检查代码格式、最佳实践、性能问题并修复
 
 ## Key Patterns
 
@@ -63,6 +64,7 @@ assets/
 - 每日抽取：从已学池 `filter(learnedSet)` → `pickRandom(pool, 3)` → 缓存到 `review_cards_YYYY-MM-DD`
 - 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_mixer` 引用
 - 音频播放：`pause → resolveUrl → set src + startTime → play()`；同 src 时直接 `seek + play`
+- 倍速播放：`SPEEDS = [1.0, 0.8, 0.6]`，`cycleSpeed()` 循环切换，`setPlaybackRate()` 同步 `_playbackRate` + `page.data.playbackRate`
 - 播放结束检测：`onTimeUpdate` 检查 `currentTime >= end`
 - 云存储 URL：`cloud://` fileID → 云函数 `getAudioUrl` → 缓存到内存 `_tempUrlMap`
 - 句子分组：sentences 页按 `id.split('_')[0]`（章节号）分组展示
