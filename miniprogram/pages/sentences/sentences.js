@@ -7,7 +7,8 @@ Page({
     groups: [],
     playingId: null,
     learnedSet: {},
-    displayMode: {}
+    displayMode: {},
+    playbackRate: 1.0
   },
 
   _mixer: null,
@@ -64,6 +65,10 @@ Page({
   onToggleLearned: function (e) {
     storage.toggleLearned(e.currentTarget.dataset.id);
     this.setData({ learnedSet: storage.getLearnedSet() });
+  },
+
+  onSpeedTap: function () {
+    this._mixer.cycleSpeed();
   },
 
   onPlay: function (e) {

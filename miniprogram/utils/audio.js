@@ -1,9 +1,11 @@
 var _tempUrlMap = {};
+var SPEEDS = [1.0, 0.8, 0.6];
 
 function createAudioMixin(page, audioUrl) {
   return {
     _audio: null,
     _currentSentence: null,
+    _playbackRate: 1.0,
 
     initAudio: function () {
       var self = this;
@@ -37,7 +39,8 @@ function createAudioMixin(page, audioUrl) {
         this._audio = null;
       }
       this._currentSentence = null;
-      page.setData({ playingId: null });
+      this._playbackRate = 1.0;
+      page.setData({ playingId: null, playbackRate: 1.0 });
     },
 
     preloadAudio: function () {
@@ -87,6 +90,20 @@ function createAudioMixin(page, audioUrl) {
       });
     },
 
+    setPlaybackRate: function (rate) {
+      this._playbackRate = rate;
+      if (this._audio) {
+        this._audio.playbackRate = rate;
+      }
+      page.setData({ playbackRate: rate });
+    },
+
+    cycleSpeed: function () {
+      var idx = SPEEDS.indexOf(this._playbackRate);
+      var next = SPEEDS[(idx + 1) % SPEEDS.length];
+      this.setPlaybackRate(next);
+    },
+
     handlePlay: function (id, items) {
       if (page.data.playingId === id) {
         this.stopPlayback();
@@ -127,6 +144,7 @@ function createAudioMixin(page, audioUrl) {
     _doPlay: function (url, startTime) {
       var audio = this._audio;
       if (!audio) return;
+      audio.playbackRate = this._playbackRate;
       if (audio.src === url) {
         audio.seek(startTime);
         audio.play();

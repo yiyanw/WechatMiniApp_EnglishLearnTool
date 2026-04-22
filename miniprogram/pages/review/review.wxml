@@ -24,12 +24,17 @@
           <text class="card-blank" wx:else>点击显示</text>
         </view>
       </view>
-      <view
-        class="card-play-btn {{playingId === item.id ? 'card-play-btn--playing' : ''}}"
-        data-id="{{item.id}}"
-        bindtap="onPlay"
-      >
-        <text class="play-icon">{{playingId === item.id ? '■' : '▶'}}</text>
+      <view class="card-controls">
+        <view class="speed-btn" bindtap="onSpeedTap">
+          <text>{{playbackRate === 1 ? 'x1.0' : 'x' + playbackRate}}</text>
+        </view>
+        <view
+          class="card-play-btn {{playingId === item.id ? 'card-play-btn--playing' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onPlay"
+        >
+          <text class="play-icon">{{playingId === item.id ? '■' : '▶'}}</text>
+        </view>
       </view>
     </view>
   </view>

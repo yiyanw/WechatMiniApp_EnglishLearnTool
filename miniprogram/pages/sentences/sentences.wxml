@@ -26,6 +26,9 @@
           bindchange="onToggleLearned"
           color="#4A90D9"
         />
+        <view class="speed-btn" bindtap="onSpeedTap">
+          <text>{{playbackRate === 1 ? 'x1.0' : 'x' + playbackRate}}</text>
+        </view>
         <view
           class="card-play-btn {{playingId === item.id ? 'card-play-btn--playing' : ''}}"
           data-id="{{item.id}}"

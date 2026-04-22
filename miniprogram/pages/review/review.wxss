@@ -118,6 +118,14 @@
   font-style: italic;
 }
 
+/* 播放控制区（倍速 + 播放按钮） */
+.card-controls {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
 /* 播放按钮 */
 .card-play-btn {
   width: 80rpx;

@@ -9,7 +9,8 @@ Page({
   data: {
     cards: [],
     playingId: null,
-    displayMode: {}
+    displayMode: {},
+    playbackRate: 1.0
   },
 
   _mixer: null,
@@ -72,6 +73,10 @@ Page({
     var key = 'displayMode.' + id;
     var current = this.data.displayMode[id] || 0;
     this.setData({ [key]: (current + 1) % 3 });
+  },
+
+  onSpeedTap: function () {
+    this._mixer.cycleSpeed();
   },
 
   onPlay: function (e) {

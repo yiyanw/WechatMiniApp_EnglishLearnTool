@@ -8,3 +8,13 @@ page {
 view, text {
   box-sizing: border-box;
 }
+
+.speed-btn {
+  width: 80rpx;
+  padding: 8rpx 0;
+  border-radius: 20rpx;
+  background-color: #f0f0f0;
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+}
