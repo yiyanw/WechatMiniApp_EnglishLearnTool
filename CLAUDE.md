@@ -88,7 +88,9 @@ assets/
 ## Key Patterns
 
 - 已学标记：`toggleLearned(id)` 写入 `learned_ids`，`getLearnedSet()` 返回 {id: true} 查找表
-- 每日抽取：从已学池 `filter(learnedSet)` → `pickRandom(pool, 3)` → 缓存到 `review_cards_YYYY-MM-DD`
+- 每日抽取：从已学池 `filter(learnedSet)` → `pickWeightedRandom(pool, proficiency, 3)` → 缓存到 `review_cards_YYYY-MM-DD`
+- SRS 熟练度：`srs_proficiency` 存储 `{id: level}`，level 1=没懂(权重4) / 2=看懂了(权重2) / 3=听懂了(权重1)，默认2
+- 复习反馈：卡片常驻三档按钮（没懂/看懂了/听懂了），点击后写入 proficiency 并显示确认文字
 - 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_player` 引用
 - 音频播放：`pause → resolveUrl → set src + startTime → play()`；同 src 时直接 `seek + play`
 - 倍速播放：`SPEEDS = [1.0, 0.8, 0.6]`，`cycleSpeed()` 循环切换，`setPlaybackRate()` 同步 `_playbackRate` + `page.data.playbackRate`

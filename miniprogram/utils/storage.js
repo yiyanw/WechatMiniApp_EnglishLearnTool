@@ -78,11 +78,35 @@ function toggleLearned(id) {
   }
 }
 
+var SRS_KEY = 'srs_proficiency';
+
+function getSrsProficiency() {
+  try {
+    var data = wx.getStorageSync(SRS_KEY);
+    if (data && typeof data === 'object') return data;
+    return {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function setSentenceProficiency(id, level) {
+  var map = getSrsProficiency();
+  map[id] = level;
+  try {
+    wx.setStorageSync(SRS_KEY, map);
+  } catch (e) {
+    console.error('Failed to save srs proficiency:', e);
+  }
+}
+
 module.exports = {
   getTodayReview: getTodayReview,
   saveTodayReview: saveTodayReview,
   cleanOldCache: cleanOldCache,
   getLearnedIds: getLearnedIds,
   getLearnedSet: getLearnedSet,
-  toggleLearned: toggleLearned
+  toggleLearned: toggleLearned,
+  getSrsProficiency: getSrsProficiency,
+  setSentenceProficiency: setSentenceProficiency
 };

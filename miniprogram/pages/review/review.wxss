@@ -53,6 +53,7 @@
 /* 单张卡片 */
 .card {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   background-color: #ffffff;
@@ -169,4 +170,49 @@
   justify-content: center;
   font-size: 32rpx;
   font-weight: 500;
+}
+
+/* 反馈按钮行 */
+.card-feedback {
+  display: flex;
+  justify-content: space-between;
+  gap: 16rpx;
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+.fb-btn {
+  flex: 1;
+  height: 64rpx;
+  border-radius: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #fff;
+  font-weight: 500;
+}
+
+.fb-btn--fail {
+  background-color: #e74c3c;
+}
+
+.fb-btn--read {
+  background-color: #f39c12;
+}
+
+.fb-btn--listen {
+  background-color: #27ae60;
+}
+
+/* 反馈确认 */
+.card-feedback-done {
+  width: 100%;
+  margin-top: 16rpx;
+  text-align: center;
+}
+
+.fb-done-text {
+  font-size: 26rpx;
+  color: #999;
 }

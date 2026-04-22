@@ -10,7 +10,8 @@ Page({
     cards: [],
     playingId: null,
     displayMode: {},
-    playbackRate: 1.0
+    playbackRate: 1.0,
+    feedback: {}
   },
 
   _player: null,
@@ -49,7 +50,8 @@ Page({
       cards = this._getSentencesByIds(cachedIds, pool);
     }
     if (!cards || cards.length === 0) {
-      cards = random.pickRandom(pool, DAILY_COUNT);
+      var proficiency = storageUtil.getSrsProficiency();
+      cards = random.pickWeightedRandom(pool, proficiency, DAILY_COUNT);
       var pickedIds = cards.map(function (sentence) { return sentence.id; });
       storageUtil.saveTodayReview(pickedIds);
     }
@@ -73,6 +75,13 @@ Page({
     var key = 'displayMode.' + id;
     var current = this.data.displayMode[id] || 0;
     this.setData({ [key]: (current + 1) % 3 });
+  },
+
+  onFeedback: function (e) {
+    var id = e.currentTarget.dataset.id;
+    var level = Number(e.currentTarget.dataset.level);
+    storageUtil.setSentenceProficiency(id, level);
+    this.setData({ ['feedback.' + id]: level });
   },
 
   onSpeedTap: function () {

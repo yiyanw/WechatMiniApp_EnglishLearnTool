@@ -36,6 +36,20 @@
           <text class="play-icon">{{playingId === item.id ? '■' : '▶'}}</text>
         </view>
       </view>
+      <view class="card-feedback" wx:if="{{!feedback[item.id]}}">
+        <view class="fb-btn fb-btn--fail" data-id="{{item.id}}" data-level="1" bindtap="onFeedback">
+          <text>没懂</text>
+        </view>
+        <view class="fb-btn fb-btn--read" data-id="{{item.id}}" data-level="2" bindtap="onFeedback">
+          <text>看懂了</text>
+        </view>
+        <view class="fb-btn fb-btn--listen" data-id="{{item.id}}" data-level="3" bindtap="onFeedback">
+          <text>听懂了</text>
+        </view>
+      </view>
+      <view class="card-feedback-done" wx:else>
+        <text class="fb-done-text">{{feedback[item.id] === 1 ? '没懂 — 下次优先复习' : feedback[item.id] === 2 ? '看懂了' : '听懂了'}}</text>
+      </view>
     </view>
   </view>
 

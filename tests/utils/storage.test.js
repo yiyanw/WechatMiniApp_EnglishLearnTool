@@ -60,6 +60,39 @@ describe('today review cache', function () {
   });
 });
 
+describe('srs proficiency', function () {
+  it('returns empty object when nothing stored', function () {
+    expect(storage.getSrsProficiency()).toEqual({});
+  });
+
+  it('setSentenceProficiency stores level', function () {
+    storage.setSentenceProficiency('1_1', 3);
+    expect(storage.getSrsProficiency()).toEqual({ '1_1': 3 });
+  });
+
+  it('setSentenceProficiency overwrites previous level', function () {
+    storage.setSentenceProficiency('1_1', 1);
+    storage.setSentenceProficiency('1_1', 3);
+    expect(storage.getSrsProficiency()).toEqual({ '1_1': 3 });
+  });
+
+  it('handles multiple sentences independently', function () {
+    storage.setSentenceProficiency('1_1', 1);
+    storage.setSentenceProficiency('2_3', 3);
+    storage.setSentenceProficiency('5_1', 2);
+    expect(storage.getSrsProficiency()).toEqual({
+      '1_1': 1,
+      '2_3': 3,
+      '5_1': 2
+    });
+  });
+
+  it('returns empty object for corrupted data', function () {
+    wx.setStorageSync('srs_proficiency', 'not an object');
+    expect(storage.getSrsProficiency()).toEqual({});
+  });
+});
+
 describe('cleanOldCache', function () {
   it('removes old review caches but keeps today', function () {
     var dateUtil = require('../../miniprogram/utils/date');
