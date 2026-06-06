@@ -3,3 +3,6 @@ node_modules/
 project.private.config.json
 miniprogram/miniprogram_npm/
 assets/audio/
+.claude/agent-memory/
+.claude/agents/
+.claude/settings.local.json

@@ -1,9 +1,7 @@
 var sentenceData = require('../../data/sentences');
 var storageUtil = require('../../utils/storage');
-var random = require('../../utils/random');
+var srs = require('../../utils/srs/index');
 var audioUtil = require('../../utils/audio');
-
-var DAILY_COUNT = 3;
 
 Page({
   data: {
@@ -15,6 +13,7 @@ Page({
   },
 
   _player: null,
+  _srsStrategy: null,
 
   onLoad: function () {
     this._player = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
@@ -50,13 +49,17 @@ Page({
       cards = this._getSentencesByIds(cachedIds, pool);
     }
     if (!cards || cards.length === 0) {
-      var proficiency = storageUtil.getSrsProficiency();
-      cards = random.pickWeightedRandom(pool, proficiency, DAILY_COUNT);
+      var strategy = srs.getActiveStrategy();
+      this._srsStrategy = strategy;
+      cards = strategy.selectCards(pool);
       var pickedIds = cards.map(function (sentence) { return sentence.id; });
       storageUtil.saveTodayReview(pickedIds);
     }
+    if (!this._srsStrategy) {
+      this._srsStrategy = srs.getActiveStrategy();
+    }
 
-    this.setData({ cards: cards });
+    this.setData({ cards: cards, feedbackOptions: this._srsStrategy.getFeedbackOptions() });
     this._player.preloadAudio();
   },
 
@@ -79,9 +82,9 @@ Page({
 
   onFeedback: function (e) {
     var id = e.currentTarget.dataset.id;
-    var level = Number(e.currentTarget.dataset.level);
-    storageUtil.setSentenceProficiency(id, level);
-    this.setData({ ['feedback.' + id]: level });
+    var rating = Number(e.currentTarget.dataset.rating);
+    this._srsStrategy.recordFeedback(id, rating);
+    this.setData({ ['feedback.' + id]: this._srsStrategy.getFeedbackLabel(rating) });
   },
 
   onSpeedTap: function () {
