@@ -38,9 +38,33 @@ function setActiveAlgorithm(key) {
   }
 }
 
+var TIMESTAMPS_KEY_SUFFIX = '_timestamps';
+
+function getLastReviewTimes(algorithmKey) {
+  try {
+    var data = wx.getStorageSync(SRS_DATA_PREFIX + algorithmKey + TIMESTAMPS_KEY_SUFFIX);
+    if (data && typeof data === 'object') return data;
+    return {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function setLastReviewTime(algorithmKey, id, timestamp) {
+  var times = getLastReviewTimes(algorithmKey);
+  times[id] = timestamp;
+  try {
+    wx.setStorageSync(SRS_DATA_PREFIX + algorithmKey + TIMESTAMPS_KEY_SUFFIX, times);
+  } catch (e) {
+    console.error('Failed to save last review time for ' + algorithmKey + ':', e);
+  }
+}
+
 module.exports = {
   getSrsData: getSrsData,
   setSrsData: setSrsData,
   getActiveAlgorithm: getActiveAlgorithm,
-  setActiveAlgorithm: setActiveAlgorithm
+  setActiveAlgorithm: setActiveAlgorithm,
+  getLastReviewTimes: getLastReviewTimes,
+  setLastReviewTime: setLastReviewTime
 };

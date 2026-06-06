@@ -2,9 +2,11 @@ var srsStorage = require('./srs-storage');
 
 var ALGO_KEY = 'weighted-random';
 var WEIGHT_MAP = { 1: 4, 2: 2, 3: 1 };
+var DECAY_RATES = { 1: 1.0, 2: 0.3, 3: 0.1 };
 var DEFAULT_PROFICIENCY = 2;
 var DAILY_COUNT = 3;
 var MAX_COUNT = 5;
+var MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function migrate() {
   var existing = srsStorage.getSrsData(ALGO_KEY);
@@ -29,15 +31,22 @@ function setProficiency(id, level) {
   srsStorage.setSrsData(ALGO_KEY, map);
 }
 
-function selectCards(pool) {
+function selectCards(pool, now) {
   if (!pool || pool.length === 0) return [];
 
+  var currentTime = now || Date.now();
   var proficiencyMap = getProficiency();
+  var lastReviewTimes = srsStorage.getLastReviewTimes(ALGO_KEY);
   var strugglingCount = 0;
   var candidates = pool.map(function (sentence) {
     var level = proficiencyMap[sentence.id] || DEFAULT_PROFICIENCY;
     if (level === 1) strugglingCount++;
-    return { sentence: sentence, weight: WEIGHT_MAP[level] || WEIGHT_MAP[DEFAULT_PROFICIENCY] };
+    var baseWeight = WEIGHT_MAP[level] || WEIGHT_MAP[DEFAULT_PROFICIENCY];
+    var decayRate = DECAY_RATES[level] || DECAY_RATES[DEFAULT_PROFICIENCY];
+    var lastTime = lastReviewTimes[sentence.id];
+    var daysSince = lastTime ? Math.max(0, (currentTime - lastTime) / MS_PER_DAY) : 30;
+    var decayFactor = 1 + daysSince * decayRate;
+    return { sentence: sentence, weight: baseWeight * decayFactor };
   });
 
   var targetCount = Math.min(DAILY_COUNT + Math.floor(strugglingCount / 2), MAX_COUNT, pool.length);
@@ -82,6 +91,7 @@ function create() {
     selectCards: selectCards,
     recordFeedback: function (id, rating) {
       setProficiency(id, rating);
+      srsStorage.setLastReviewTime(ALGO_KEY, id, Date.now());
     },
     getFeedbackOptions: function () {
       return FEEDBACK_OPTIONS;

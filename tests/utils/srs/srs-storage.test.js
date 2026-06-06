@@ -45,3 +45,29 @@ describe('getActiveAlgorithm / setActiveAlgorithm', function () {
     expect(srsStorage.getActiveAlgorithm()).toBe('weighted-random');
   });
 });
+
+describe('getLastReviewTimes / setLastReviewTime', function () {
+  it('returns empty object when nothing stored', function () {
+    expect(srsStorage.getLastReviewTimes('weighted-random')).toEqual({});
+  });
+
+  it('roundtrips correctly', function () {
+    srsStorage.setLastReviewTime('weighted-random', '1_1', 1000);
+    srsStorage.setLastReviewTime('weighted-random', '2_1', 2000);
+    var times = srsStorage.getLastReviewTimes('weighted-random');
+    expect(times).toEqual({ '1_1': 1000, '2_1': 2000 });
+  });
+
+  it('isolates by algorithm key', function () {
+    srsStorage.setLastReviewTime('algo-a', 'x', 100);
+    srsStorage.setLastReviewTime('algo-b', 'y', 200);
+    expect(srsStorage.getLastReviewTimes('algo-a')).toEqual({ x: 100 });
+    expect(srsStorage.getLastReviewTimes('algo-b')).toEqual({ y: 200 });
+  });
+
+  it('overwrites existing timestamp', function () {
+    srsStorage.setLastReviewTime('weighted-random', '1_1', 1000);
+    srsStorage.setLastReviewTime('weighted-random', '1_1', 9999);
+    expect(srsStorage.getLastReviewTimes('weighted-random')['1_1']).toBe(9999);
+  });
+});

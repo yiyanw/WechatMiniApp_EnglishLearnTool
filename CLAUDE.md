@@ -94,12 +94,14 @@ assets/
 - 已学标记：`toggleLearned(id)` 写入 `learned_ids`，`getLearnedSet()` 返回 {id: true} 查找表
 - 每日抽取：从已学池 `filter(learnedSet)` → `strategy.selectCards(pool)` → 缓存到 `review_cards_YYYY-MM-DD`
 - SRS 策略模式：`utils/srs/index.js` 管理算法注册与切换，每种算法实现 `selectCards / recordFeedback / getFeedbackOptions / getFeedbackLabel` 四个方法
+- SRS 时间衰减：`weighted-random` 的 `selectCards` 权重乘上 `1 + daysSince × decayRate`，`recordFeedback` 同时保存时间戳到 `srs_data_<key>_timestamps`
 - SRS 存储隔离：每种算法数据存在 `srs_data_<algorithm_key>`，切换算法不丢数据，旧 `srs_proficiency` 自动迁移
 - 添加新算法：新建 `utils/srs/<name>.js` 实现接口 + 在 `index.js` 中 `register()`，无需改页面
 - 复习反馈：按钮配置由算法的 `getFeedbackOptions()` 驱动，WXML 动态渲染
 - 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_player` 引用
-- 音频播放：`pause → resolveUrl → set src + startTime → play()`；同 src 时直接 `seek + play`
+- 音频播放：`set _currentSentence → resolveUrl → _doPlay(onCanplay → play)`，不再用 `seek` 避免真机 error -1
 - 倍速播放：`SPEEDS = [1.0, 0.8, 0.6]`，`cycleSpeed()` 循环切换，`setPlaybackRate()` 同步 `_playbackRate` + `page.data.playbackRate`
 - 播放结束检测：`onTimeUpdate` 检查 `currentTime >= end`
 - 云存储 URL：`cloud://` fileID → 云函数 `getAudioUrl` → 缓存到内存 `_tempUrlMap`
+- 音频错误处理：预加载阶段的 error 不弹 toast（只记 console.error），播放阶段的 error 才弹 toast（3 秒冷却防重复）；系统回调（onEnded/onTimeUpdate/onError）用 `_clearState()` 仅清理 UI 状态，`stopPlayback(true)` 主动停止才调 `audio.stop()`
 - 句子分组：sentences 页按 `id.split('_')[0]`（章节号）分组展示

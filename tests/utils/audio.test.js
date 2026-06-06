@@ -78,7 +78,7 @@ describe('handlePlay', function () {
   it('stops playback when clicking the same id', function () {
     mockPage.data.playingId = '1_1';
     mixer.handlePlay('1_1', items);
-    expect(mockAudio.pause).toHaveBeenCalled();
+    expect(mockAudio.stop).toHaveBeenCalled();
     expect(mixer._currentSentence).toBeNull();
   });
 
@@ -97,18 +97,27 @@ describe('handlePlay', function () {
 });
 
 describe('stopPlayback', function () {
-  it('pauses audio and clears state', function () {
+  it('stops audio and clears state when stopAudio is true', function () {
     mixer._currentSentence = { id: '1_1' };
     mockPage.data.playingId = '1_1';
-    mixer.stopPlayback();
-    expect(mockAudio.pause).toHaveBeenCalled();
+    mixer.stopPlayback(true);
+    expect(mockAudio.stop).toHaveBeenCalled();
+    expect(mixer._currentSentence).toBeNull();
+    expect(mockPage.setData).toHaveBeenCalledWith({ playingId: null });
+  });
+
+  it('only clears state when stopAudio is false', function () {
+    mixer._currentSentence = { id: '1_1' };
+    mockPage.data.playingId = '1_1';
+    mixer.stopPlayback(false);
+    expect(mockAudio.stop).not.toHaveBeenCalled();
     expect(mixer._currentSentence).toBeNull();
     expect(mockPage.setData).toHaveBeenCalledWith({ playingId: null });
   });
 
   it('skips setData if playingId is already null', function () {
     mockPage.data.playingId = null;
-    mixer.stopPlayback();
+    mixer.stopPlayback(true);
     expect(mockPage.setData).not.toHaveBeenCalled();
   });
 });
@@ -143,10 +152,15 @@ describe('cycleSpeed', function () {
 });
 
 describe('_doPlay', function () {
-  it('seeks and plays when src matches', function () {
+  it('sets startTime and plays after canplay when src matches', function () {
     mockAudio.src = 'https://example.com/audio.m4a';
+    mixer._audioReady = true;
     mixer._doPlay('https://example.com/audio.m4a', 10.5);
-    expect(mockAudio.seek).toHaveBeenCalledWith(10.5);
+    expect(mixer._audioReady).toBe(false);
+    expect(mockAudio.startTime).toBe(10.5);
+    expect(mockAudio.play).not.toHaveBeenCalled();
+    var canplayCb = mockAudio.onCanplay.mock.calls[mockAudio.onCanplay.mock.calls.length - 1][0];
+    canplayCb();
     expect(mockAudio.play).toHaveBeenCalled();
   });
 
@@ -154,43 +168,52 @@ describe('_doPlay', function () {
     mockAudio.src = 'https://other.com/old.m4a';
     mixer._doPlay('https://example.com/new.m4a', 5.0);
     expect(mockAudio.src).toBe('https://example.com/new.m4a');
+    expect(mixer._audioReady).toBe(false);
     expect(mockAudio.startTime).toBe(5.0);
+    expect(mockAudio.play).not.toHaveBeenCalled();
+    var canplayCb = mockAudio.onCanplay.mock.calls[mockAudio.onCanplay.mock.calls.length - 1][0];
+    canplayCb();
     expect(mockAudio.play).toHaveBeenCalled();
   });
 
   it('applies playbackRate before playing', function () {
+    mockAudio.src = 'https://example.com/audio.m4a';
+    mixer._audioReady = true;
     mixer.setPlaybackRate(0.8);
     mixer._doPlay('https://example.com/audio.m4a', 0);
     expect(mockAudio.playbackRate).toBe(0.8);
+    var canplayCb = mockAudio.onCanplay.mock.calls[mockAudio.onCanplay.mock.calls.length - 1][0];
+    canplayCb();
     expect(mockAudio.play).toHaveBeenCalled();
   });
 });
 
 describe('onTimeUpdate callback', function () {
-  it('stops playback when currentTime >= end', function () {
+  it('clears state when currentTime >= end', function () {
     var timeUpdateCb = mockAudio.onTimeUpdate.mock.calls[0][0];
     mixer._currentSentence = { id: '1_1', start: 10, end: 15 };
     mockPage.data.playingId = '1_1';
     mockAudio.currentTime = 15.1;
     timeUpdateCb();
-    expect(mockAudio.pause).toHaveBeenCalled();
     expect(mixer._currentSentence).toBeNull();
+    expect(mockPage.setData).toHaveBeenCalledWith({ playingId: null });
   });
 
   it('does nothing when no current sentence', function () {
     var timeUpdateCb = mockAudio.onTimeUpdate.mock.calls[0][0];
     mixer._currentSentence = null;
     timeUpdateCb();
-    expect(mockAudio.pause).not.toHaveBeenCalled();
+    expect(mockPage.setData).not.toHaveBeenCalled();
   });
 });
 
 describe('onEnded callback', function () {
-  it('stops playback when audio ends', function () {
+  it('clears state when audio ends', function () {
     var endedCb = mockAudio.onEnded.mock.calls[0][0];
     mixer._currentSentence = { id: '1_1' };
     mockPage.data.playingId = '1_1';
     endedCb();
     expect(mixer._currentSentence).toBeNull();
+    expect(mockPage.setData).toHaveBeenCalledWith({ playingId: null });
   });
 });
