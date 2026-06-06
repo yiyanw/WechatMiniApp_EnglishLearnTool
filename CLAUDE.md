@@ -99,9 +99,9 @@ assets/
 - 添加新算法：新建 `utils/srs/<name>.js` 实现接口 + 在 `index.js` 中 `register()`，无需改页面
 - 复习反馈：按钮配置由算法的 `getFeedbackOptions()` 驱动，WXML 动态渲染
 - 音频 Mixin：`createAudioMixin(page)` 封装播放/停止/URL 解析，页面通过 `_player` 引用
-- 音频播放：`set _currentSentence → resolveUrl → _doPlay(onCanplay → play)`，不再用 `seek` 避免真机 error -1
+- 音频播放：`pause → resolveUrl → set src + startTime → play()`；同 src 时直接 `seek + play`
 - 倍速播放：`SPEEDS = [1.0, 0.8, 0.6]`，`cycleSpeed()` 循环切换，`setPlaybackRate()` 同步 `_playbackRate` + `page.data.playbackRate`
 - 播放结束检测：`onTimeUpdate` 检查 `currentTime >= end`
 - 云存储 URL：`cloud://` fileID → 云函数 `getAudioUrl` → 缓存到内存 `_tempUrlMap`
-- 音频错误处理：预加载阶段的 error 不弹 toast（只记 console.error），播放阶段的 error 才弹 toast（3 秒冷却防重复）；系统回调（onEnded/onTimeUpdate/onError）用 `_clearState()` 仅清理 UI 状态，`stopPlayback(true)` 主动停止才调 `audio.stop()`
+- 音频错误处理：预加载阶段的 error -1 不弹 toast（`onError` 检查 `_currentSentence` 是否为空），播放阶段的 error 正常弹出
 - 句子分组：sentences 页按 `id.split('_')[0]`（章节号）分组展示

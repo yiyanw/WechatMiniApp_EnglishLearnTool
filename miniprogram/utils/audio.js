@@ -11,36 +11,24 @@ function createAudioMixin(page, audioUrl) {
       var self = this;
       var audio = wx.createInnerAudioContext();
       audio.obeyMuteSwitch = false;
-      self._lastErrorTime = 0;
-      self._audioReady = false;
-
-      audio.onCanplay(function () {
-        self._audioReady = true;
-      });
 
       audio.onError(function (err) {
         var code = (err && err.errCode) || (err && err.errMsg) || 'unknown';
         console.error('Audio error:', err);
-        self._audioReady = false;
-        var wasPlaying = !!self._currentSentence;
-        self._clearState();
-        if (wasPlaying) {
-          var now = Date.now();
-          if (now - self._lastErrorTime > 3000) {
-            self._lastErrorTime = now;
-            wx.showToast({ title: '音频播放出错(' + code + ')', icon: 'none', duration: 2000 });
-          }
+        if (self._currentSentence) {
+          wx.showToast({ title: '音频播放出错(' + code + ')', icon: 'none', duration: 2000 });
         }
+        self.stopPlayback();
       });
 
       audio.onEnded(function () {
-        self._clearState();
+        self.stopPlayback();
       });
 
       audio.onTimeUpdate(function () {
         if (!self._currentSentence) return;
         if (audio.currentTime >= self._currentSentence.end) {
-          self._clearState();
+          self.stopPlayback();
         }
       });
 
@@ -133,7 +121,7 @@ function createAudioMixin(page, audioUrl) {
 
     handlePlay: function (id, sentences) {
       if (page.data.playingId === id) {
-        this.stopPlayback(true);
+        this.stopPlayback();
         return;
       }
       var sentence = null;
@@ -153,6 +141,7 @@ function createAudioMixin(page, audioUrl) {
       if (!audio) return;
       var self = this;
 
+      audio.pause();
       this._currentSentence = sentence;
       page.setData({ playingId: sentence.id });
 
@@ -171,31 +160,24 @@ function createAudioMixin(page, audioUrl) {
       var audio = this._audio;
       if (!audio) return;
       audio.playbackRate = this._playbackRate;
-      var self = this;
-      self._audioReady = false;
-      var onReady = function () {
-        audio.offCanplay(onReady);
+      if (audio.src === url) {
+        audio.seek(startTime);
         audio.play();
-      };
-      audio.onCanplay(onReady);
-      if (audio.src !== url) {
+      } else {
         audio.src = url;
+        audio.startTime = startTime;
+        audio.play();
       }
-      audio.startTime = startTime;
     },
 
-    _clearState: function () {
+    stopPlayback: function () {
+      if (this._audio) {
+        this._audio.pause();
+      }
       this._currentSentence = null;
       if (page.data.playingId !== null) {
         page.setData({ playingId: null });
       }
-    },
-
-    stopPlayback: function (stopAudio) {
-      if (stopAudio && this._audio) {
-        this._audio.stop();
-      }
-      this._clearState();
     }
   };
 }
