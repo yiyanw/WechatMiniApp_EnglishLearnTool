@@ -44,6 +44,15 @@ function cleanOldCache() {
   }
 }
 
+function clearTodayReview() {
+  var key = STORAGE_PREFIX + dateUtil.getTodayKey();
+  try {
+    wx.removeStorageSync(key);
+  } catch (e) {
+    console.error('Failed to clear today review cache:', e);
+  }
+}
+
 var LEARNED_KEY = 'learned_ids';
 
 function getLearnedIds() {
@@ -82,6 +91,7 @@ module.exports = {
   getTodayReview: getTodayReview,
   saveTodayReview: saveTodayReview,
   cleanOldCache: cleanOldCache,
+  clearTodayReview: clearTodayReview,
   getLearnedIds: getLearnedIds,
   getLearnedSet: getLearnedSet,
   toggleLearned: toggleLearned

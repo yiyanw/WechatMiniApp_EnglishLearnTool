@@ -92,7 +92,8 @@ assets/
 ## Key Patterns
 
 - 已学标记：`toggleLearned(id)` 写入 `learned_ids`，`getLearnedSet()` 返回 {id: true} 查找表
-- 每日抽取：从已学池 `filter(learnedSet)` → `strategy.selectCards(pool)` → 缓存到 `review_cards_YYYY-MM-DD`
+- 每日抽取：从已学池 `filter(learnedSet)` → 过滤 `_shownToday` 已展示 → `strategy.selectCards(pool)` → 缓存到 `review_cards_YYYY-MM-DD`
+- 复习刷新：点"下一组"清今日缓存 → 将当前批次加入 `_shownToday` → 重新抽取（排除已展示），池空提示"已学句子全部复习过了"，重启 App 恢复最后一次缓存
 - SRS 策略模式：`utils/srs/index.js` 管理算法注册与切换，每种算法实现 `selectCards / recordFeedback / getFeedbackOptions / getFeedbackLabel` 四个方法
 - SRS 时间衰减：`weighted-random` 的 `selectCards` 权重乘上 `1 + daysSince × decayRate`，`recordFeedback` 同时保存时间戳到 `srs_data_<key>_timestamps`
 - SRS 存储隔离：每种算法数据存在 `srs_data_<algorithm_key>`，切换算法不丢数据，旧 `srs_proficiency` 自动迁移

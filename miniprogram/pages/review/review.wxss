@@ -11,6 +11,12 @@
   margin-bottom: 48rpx;
 }
 
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .header-title {
   display: block;
   font-size: 48rpx;
@@ -23,6 +29,25 @@
   display: block;
   font-size: 28rpx;
   color: #999;
+}
+
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 24rpx;
+  border-radius: 32rpx;
+  background-color: #f0f0f0;
+}
+
+.refresh-icon {
+  font-size: 32rpx;
+  color: #666;
+}
+
+.refresh-text {
+  font-size: 26rpx;
+  color: #666;
 }
 
 /* 空状态 */

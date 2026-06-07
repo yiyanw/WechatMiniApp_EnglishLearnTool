@@ -1,7 +1,13 @@
 <!--pages/review/review.wxml-->
 <view class="page">
   <view class="header">
-    <text class="header-title">今日复习</text>
+    <view class="header-top">
+      <text class="header-title">今日复习</text>
+      <view class="refresh-btn" bindtap="onRefresh" wx:if="{{cards.length > 0}}">
+        <text class="refresh-icon">↻</text>
+        <text class="refresh-text">下一组</text>
+      </view>
+    </view>
     <text class="header-subtitle">每天听三句，坚持有进步</text>
   </view>
 

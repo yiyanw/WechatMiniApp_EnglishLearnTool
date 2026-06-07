@@ -14,6 +14,7 @@ Page({
 
   _player: null,
   _srsStrategy: null,
+  _shownToday: null,
 
   onLoad: function () {
     this._player = audioUtil.createAudioMixin(this, sentenceData.AUDIO_URL);
@@ -43,15 +44,25 @@ Page({
       return;
     }
 
+    if (!this._shownToday) {
+      this._shownToday = {};
+    }
+    var self = this;
+    var freshPool = pool.filter(function (sentence) { return !self._shownToday[sentence.id]; });
+    if (freshPool.length === 0) {
+      wx.showToast({ title: '已学句子全部复习过了', icon: 'none' });
+      return;
+    }
+
     var cachedIds = storageUtil.getTodayReview();
     var cards;
     if (cachedIds) {
-      cards = this._getSentencesByIds(cachedIds, pool);
+      cards = this._getSentencesByIds(cachedIds, freshPool);
     }
     if (!cards || cards.length === 0) {
       var strategy = srs.getActiveStrategy();
       this._srsStrategy = strategy;
-      cards = strategy.selectCards(pool);
+      cards = strategy.selectCards(freshPool);
       var pickedIds = cards.map(function (sentence) { return sentence.id; });
       storageUtil.saveTodayReview(pickedIds);
     }
@@ -85,6 +96,19 @@ Page({
     var rating = Number(e.currentTarget.dataset.rating);
     this._srsStrategy.recordFeedback(id, rating);
     this.setData({ ['feedback.' + id]: this._srsStrategy.getFeedbackLabel(rating) });
+  },
+
+  onRefresh: function () {
+    var currentCards = this.data.cards;
+    if (!this._shownToday) {
+      this._shownToday = {};
+    }
+    currentCards.forEach(function (card) {
+      this._shownToday[card.id] = true;
+    }, this);
+    storageUtil.clearTodayReview();
+    this.setData({ displayMode: {}, feedback: {} });
+    this._loadTodayCards();
   },
 
   onSpeedTap: function () {

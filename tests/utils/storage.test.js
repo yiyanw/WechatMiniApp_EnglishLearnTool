@@ -77,3 +77,22 @@ describe('cleanOldCache', function () {
     expect(wx.removeStorageSync).not.toHaveBeenCalledWith('learned_ids');
   });
 });
+
+describe('clearTodayReview', function () {
+  it('removes today review cache', function () {
+    var dateUtil = require('../../miniprogram/utils/date');
+    var todayKey = 'review_cards_' + dateUtil.getTodayKey();
+    var ids = ['1_1', '2_3'];
+    storage.saveTodayReview(ids);
+    expect(storage.getTodayReview()).toEqual(ids);
+
+    storage.clearTodayReview();
+    expect(storage.getTodayReview()).toBeNull();
+  });
+
+  it('does not affect learned ids', function () {
+    storage.toggleLearned('1_1');
+    storage.clearTodayReview();
+    expect(storage.getLearnedIds()).toEqual(['1_1']);
+  });
+});
